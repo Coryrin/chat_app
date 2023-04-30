@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { ChatGroup, User } from '../../models';
+import { ChatGroup, Message, User } from '../../models';
 import { checkAuthenticationToken } from '../middleware/authentication';
 
 const router = Router();
@@ -7,7 +7,7 @@ const router = Router();
 router.get('/group/:groupId', (req: Request, res: Response): void => {
     const { groupId } = req.params;
 
-    const chatGroupPromise = ChatGroup.findById(groupId);
+    const chatGroupPromise = ChatGroup.findById(groupId).populate(['messages', 'members']);
 
     chatGroupPromise.then((chatGroup) => {
         return res.send({
@@ -90,12 +90,34 @@ router.post('/group/create', checkAuthenticationToken, (req: Request, res: Respo
         });
 });
 
-router.post('/message/create', (req: Request, res: Response) => {
-    res.send('Create message endpoint hit');
-});
+router.post('/:groupId/create', checkAuthenticationToken, (req: Request, res: Response) => {
+    const { groupId } = req.params;
+    const {
+        content,
+        author,
+    } = req.body;
 
-router.get('/messages/:groupId', (req: Request, res: Response) => {
-    res.send('Get messages for group id hit');
+    new Message({
+        content,
+        author,
+        chatGroup: groupId
+    })
+        .save()
+        .then((message) => {
+            ChatGroup.findByIdAndUpdate(groupId, {
+                $push: {
+                    messages: {
+                        _id: message._id
+                    }
+                }
+            });
+
+            // TODO: Implement Pusher here, to push the new message to a channel
+
+            res.send({
+                message,
+            });
+        });
 });
 
 export const messageRouter = router;

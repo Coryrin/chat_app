@@ -4,6 +4,7 @@ import { IUser } from './User';
 export interface IChatGroup extends Document {
     name: string;
     members: IUser['_id'][];
+    messages: IMembers['_id'][];
 }
 
 const chatGroupSchema = new Schema<IChatGroup>({
@@ -14,6 +15,10 @@ const chatGroupSchema = new Schema<IChatGroup>({
     members: [{
         type: Schema.Types.ObjectId,
         ref: 'User',
+    }],
+    messages: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Message',
     }]
 });
 

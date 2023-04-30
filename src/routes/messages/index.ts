@@ -65,12 +65,7 @@ router.post('/group/create', checkAuthenticationToken, (req: Request, res: Respo
                 { $addToSet: { members: userId }}
             );
 
-            const addUserToChatGroup = User.updateOne(
-                {_id: userId}, 
-                { $addToSet: { groups: chatGroup._id }}
-            );
-
-            Promise.all([addUserToMembers, addUserToChatGroup])
+            addUserToMembers
                 .then(() => {
                     res.send({
                         message: 'Your group has been created',
@@ -110,14 +105,29 @@ router.post('/:groupId/create', checkAuthenticationToken, (req: Request, res: Re
                         _id: message._id
                     }
                 }
+            }).then(() => {
+                // TODO: Implement Pusher here, to push the new message to a channel
             });
 
-            // TODO: Implement Pusher here, to push the new message to a channel
 
             res.send({
                 message,
             });
         });
+});
+
+router.get('/:userId/groups', checkAuthenticationToken, (req: Request, res: Response) => {
+    const { userId } = req.params;
+
+    ChatGroup.find({
+        members: userId
+    })
+    .populate(['members', 'messages'])
+    .then((chatGroups) => {
+        res.send({
+            chatGroups,
+        })
+    })
 });
 
 export const messageRouter = router;

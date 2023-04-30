@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { ChatGroup, User } from '../../models';
-import { Members } from '../../models/ChatGroup';
+import { checkAuthenticationToken } from '../middleware/authentication';
 
 const router = Router();
 
@@ -45,7 +45,7 @@ router.post('/group/:groupId/add-member/:userId', (req: Request, res: Response):
         })
 });
 
-router.post('/group/create', (req: Request, res: Response) => {
+router.post('/group/create', checkAuthenticationToken, (req: Request, res: Response) => {
     const { name, userId } = req.body;
 
     if (!name || !userId) {

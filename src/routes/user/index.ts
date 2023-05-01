@@ -1,5 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { User } from '../../models';
+import bcrypt from 'bcrypt';
+import { signToken } from '../middleware/authentication';
 
 const router = Router();
 
@@ -30,8 +32,30 @@ router.post('/create', (req: Request, res: Response) => {
         });
 });
 
-router.post('/signin', (req: Request, res: Response) => {
-    res.send('User sign in endpoint hit!');
+router.post('/sign-in', async (req: Request, res: Response) => {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username });
+
+    if (!user) {
+        res.send({
+            message: `User with the username "${username}" not found`,
+        }).status(404);
+        return;
+    }
+
+    const doesPasswordMatch = await bcrypt.compare(password, user.password);
+
+    if (!doesPasswordMatch) {
+        res.send({
+            message: 'Your password is incorrect. Please try again',
+        }).status(400);
+    }
+
+    const token = signToken(user._id);
+
+    res.send({
+        token,
+    });
 });
 
 export const userRouter = router;

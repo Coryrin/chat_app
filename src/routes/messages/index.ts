@@ -109,7 +109,6 @@ router.post('/:groupId/create', checkAuthenticationToken, (req: Request, res: Re
                 // TODO: Implement Pusher here, to push the new message to a channel
             });
 
-
             res.send({
                 message,
             });
@@ -126,7 +125,7 @@ router.get('/:userId/groups', checkAuthenticationToken, (req: Request, res: Resp
     .then((chatGroups) => {
         res.send({
             chatGroups,
-        })
+        });
     })
 });
 

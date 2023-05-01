@@ -2,6 +2,19 @@ import { Response, Request, NextFunction } from "express";
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 
+export const signToken = (item: string): string => {
+    dotenv.config();
+
+    const secret = process.env.JSON_WEB_TOKEN_SECRET;
+
+    if (!secret) return '';
+
+    return jwt.sign({
+        _id: item,
+        isAuthenticated: true
+    }, secret);
+}
+
 const isTokenValid = (authToken: string): boolean => {
     dotenv.config();
 

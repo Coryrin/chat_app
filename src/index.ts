@@ -1,10 +1,13 @@
 import express, { Express } from 'express';
 import { userRouter, messageRouter } from './routes';
 import mongoose from 'mongoose';
+import cors from 'cors';
 
 const uri = 'mongodb://localhost:27017/chatapp';
 const app: Express = express();
 const PORT: number = 3000;
+
+app.use(cors());
 
 app.use(express.json())
 app.use('/user', userRouter);

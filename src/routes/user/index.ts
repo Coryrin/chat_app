@@ -55,6 +55,8 @@ router.post('/sign-in', async (req: Request, res: Response) => {
 
     res.send({
         token,
+        username: user.username,
+        email: user.email,
     });
 });
 

@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 import { IUser } from './User';
 import { IChatGroup } from './ChatGroup';
 
-interface IMessage extends Document {
+export interface IMessage extends Document {
     content: string;
     author: IUser;
     chatGroup: IChatGroup;

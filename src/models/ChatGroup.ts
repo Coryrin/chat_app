@@ -1,10 +1,11 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import { IUser } from './User';
+import { IMessage } from './Message';
 
 export interface IChatGroup extends Document {
     name: string;
     members: IUser['_id'][];
-    messages: IMembers['_id'][];
+    messages: IMessage['_id'][];
 }
 
 const chatGroupSchema = new Schema<IChatGroup>({
@@ -22,23 +23,4 @@ const chatGroupSchema = new Schema<IChatGroup>({
     }]
 });
 
-interface IMembers extends Document {
-    user: IUser['_id'],
-    chatGroup: IChatGroup['_id'],
-}
-
-const membersSchema = new Schema<IMembers>({
-    user: {
-        type: Schema.Types.ObjectId, 
-        ref: 'User',
-        required: true,
-    },
-    chatGroup: {
-        type: Schema.Types.ObjectId,
-        ref: 'ChatGroup',
-        required: true,
-    }
-});
-
 export const ChatGroup = mongoose.model<IChatGroup>('ChatGroup', chatGroupSchema);
-export const Members = mongoose.model<IMembers>('Members', membersSchema);

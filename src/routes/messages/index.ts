@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { ChatGroup, Message, User } from '../../models';
 import { checkAuthenticationToken } from '../middleware/authentication';
+import { pusher } from '../../services/channels';
 
 const router = Router();
 
@@ -99,19 +100,23 @@ router.post('/:groupId/create', checkAuthenticationToken, (req: Request, res: Re
     })
         .save()
         .then((message) => {
-            ChatGroup.findByIdAndUpdate(groupId, {
-                $push: {
-                    messages: {
-                        _id: message._id
+            message.populate('author').then(populatedMessage => {
+                ChatGroup.findByIdAndUpdate(groupId, {
+                    $push: {
+                        messages: {
+                            _id: message._id
+                        }
                     }
-                }
-            }).then(() => {
-                // TODO: Implement Pusher here, to push the new message to a channel
-            });
-
-            res.send({
-                message,
-            });
+                }).then(() => {
+                    pusher.trigger(groupId, 'message-sent', {
+                        message: populatedMessage
+                    });
+                });
+    
+                res.send({
+                    message: populatedMessage,
+                });
+            });           
         });
 });
 
